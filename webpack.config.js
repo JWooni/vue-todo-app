@@ -4,6 +4,7 @@ const {
 } = require('vue-loader')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 require('@babel/polyfill')
 
 module.exports = {
@@ -46,6 +47,12 @@ module.exports = {
     new CopyPlugin([{
       from: 'assets/',
       to: ''
-    }])
-  ]
+    }]),
+    new CleanWebpackPlugin()
+  ],
+  devServer: {
+    open: false,
+    hot: true
+  },
+  devtool: 'eval'
 }
