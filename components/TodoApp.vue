@@ -231,7 +231,5 @@ export default {
 </script>
 
 <style lang="scss">
-  button.active {
-    font-weight: 900;
-  }
+  @import "../scss/style"
 </style>
