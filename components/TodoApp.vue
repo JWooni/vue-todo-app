@@ -25,16 +25,36 @@
       </div>
 
       <!-- ACTIONS -->
-      <div class="actions">
-        <input
-          v-model="allDone"
-          type="checkbox"
-        />
-        <button @click="clearCompleted">완료된 항목 삭제</button>
+      <div class="actions clearfix">
+        <div class="float--left">
+          <label>
+            <input
+              v-model="allDone"
+              type="checkbox"
+            />
+            <span class="icon"><i class="material-icons">done_all</i></span>
+          </label>
+        </div>
+        <div class="float--right">
+          <button
+           class="btn float--left"
+           @click="scrollToTop">
+            <i class="material-icons">expand_less</i>
+          </button>
+          <button
+           class="btn float--left"
+           @click="scrollToBottom">
+            <i class="material-icons">expand_more</i>
+
+          </button>
+          <button 
+            class="btn btn--danger float--left"
+            @click="clearCompleted">
+            <i class="material-icons">delete_sweep</i>
+          </button>
+        </div>
       </div>
     </div>
-
-    <hr />
 
     <!-- LIST -->
     <div class="todo-app__list">
@@ -67,6 +87,7 @@ import _findIndex from 'lodash/findIndex'
 import _assign from 'lodash/assign'
 import _cloneDeep from 'lodash/cloneDeep'
 import _forEachRight from 'lodash/forEachRight'
+import scrollTo from 'scroll-to'
 import TodoCreator from './TodoCreator'
 import TodoItem from './TodoItem'
 export default {
@@ -216,11 +237,22 @@ export default {
       //   .forEach(index => {
       //     this.deleteTodo(this.todos[index])
       //   })
+
       // Lodash 라이브러리 활용
       _forEachRight(this.todos, todo => {
         if (todo.done) {
           this.deleteTodo(todo)
         }
+      })
+    },
+    scrollToTop () {
+      scrollTo(0, 0, {
+        ease: 'linear'
+      })
+    },
+    scrollToBottom () {
+      scrollTo(0, document.body.scrollHeight, {
+        ease: 'linear'
       })
     },
     changeFilter (filter) {
