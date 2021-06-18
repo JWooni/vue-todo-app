@@ -13,7 +13,11 @@ require('@babel/polyfill')
 module.exports = (env, opts) => {
   const config = {
     resolve: {
-      extensions: ['.vue', '.js']
+      extensions: ['.vue', '.js'],
+      alias: {
+        '~': path.join(__dirname),
+        'scss': path.join(__dirname, './scss')
+      }
     },
     // 진입점
     entry: {
