@@ -4,52 +4,52 @@
     <div class="todo-app__actions">
       <!-- FILTERS -->
       <div class="filters">
-        <button
-          :class="{ active: filter === 'all' }"
-          @click="changeFilter('all')"
+        <router-link
+          to="all"
+          tag="button"
         >
           모든 항목 ({{ todos.length }})
-        </button>
-        <button
-          :class="{ active: filter === 'active' }"
-          @click="changeFilter('active')"
+        </router-link>
+        <router-link
+          to="active"
+          tag="button"
         >
           해야 할 항목 ({{ activeCount }})
-        </button>
-        <button
-          :class="{ active: filter === 'completed' }"
-          @click="changeFilter('completed')"
+        </router-link>
+        <router-link
+          to="completed"
+          tag="button"
         >
           완료된 항목 ({{ completedCount }})
-        </button>
+        </router-link>
       </div>
 
       <!-- ACTIONS -->
       <div class="actions clearfix">
-        <div class="float--left">
-          <label>
-            <input
-              v-model="allDone"
-              type="checkbox"
-            />
-            <span class="icon"><i class="material-icons">done_all</i></span>
-          </label>
-        </div>
-        <div class="float--right">
+        <label class="float--left">
+          <input
+            v-model="allDone"
+            type="checkbox"
+          />
+          <span class="icon"><i class="material-icons">done_all</i></span>
+        </label>
+        <div class="float--right clearfix">
           <button
-           class="btn float--left"
-           @click="scrollToTop">
+            class="btn float--left"
+            @click="scrollToTop"
+          >
             <i class="material-icons">expand_less</i>
           </button>
           <button
-           class="btn float--left"
-           @click="scrollToBottom">
+            class="btn float--left"
+            @click="scrollToBottom"
+          >
             <i class="material-icons">expand_more</i>
-
           </button>
-          <button 
+          <button
             class="btn btn--danger float--left"
-            @click="clearCompleted">
+            @click="clearCompleted"
+          >
             <i class="material-icons">delete_sweep</i>
           </button>
         </div>
@@ -66,8 +66,6 @@
         @delete-todo="deleteTodo"
       />
     </div>
-
-    <hr />
 
     <!-- INSERT -->
     <todo-creator
@@ -99,13 +97,12 @@ export default {
   data () {
     return {
       db: null,
-      todos: [],
-      filter: 'all'
+      todos: []
     }
   },
   computed: {
     filteredTodos () {
-      switch (this.filter) {
+      switch (this.$route.params.id) {
         case 'all':
         default:
           return this.todos
@@ -168,7 +165,7 @@ export default {
         this.db
           .get('todos')
           .push(newTodo)
-          .write()
+          .write() // `todos` 배열을 반환합니다.
       } catch (error) {
         console.error(error)
         return
@@ -188,7 +185,6 @@ export default {
         console.error(error)
         return
       }
-      // 로컬(local)에 반영
       // Lodash 라이브러리 활용
       const foundTodo = _find(this.todos, { id: todo.id })
       _assign(foundTodo, value)
@@ -237,7 +233,6 @@ export default {
       //   .forEach(index => {
       //     this.deleteTodo(this.todos[index])
       //   })
-
       // Lodash 라이브러리 활용
       _forEachRight(this.todos, todo => {
         if (todo.done) {
@@ -245,23 +240,20 @@ export default {
         }
       })
     },
-    scrollToTop () {
-      scrollTo(0, 0, {
-        ease: 'linear'
-      })
-    },
     scrollToBottom () {
-      scrollTo(0, document.body.scrollHeight, {
-        ease: 'linear'
-      })
+      scrollTo(0, document.body.scrollHeight) // x, y
     },
-    changeFilter (filter) {
-      this.filter = filter
+    scrollToTop () {
+      scrollTo(0, 0)
     }
   }
 }
 </script>
 
 <style lang="scss">
-  @import "scss/style"
+  @import "scss/style";
+  .filters button.router-link-active {
+    background: royalblue;
+    color: white;
+  }
 </style>
