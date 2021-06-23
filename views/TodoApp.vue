@@ -8,7 +8,7 @@
           to="all"
           tag="button"
         >
-          모든 항목 ({{ todos.length }})
+          모든 항목 ({{ total }})
         </router-link>
         <router-link
           to="active"
@@ -62,33 +62,20 @@
         v-for="todo in filteredTodos"
         :key="todo.id"
         :todo="todo"
-        @update-todo="updateTodo"
-        @delete-todo="deleteTodo"
       />
     </div>
 
     <!-- INSERT -->
-    <todo-creator
-      class="todo-app__creator"
-      @create-todo="createTodo"
-    />
+    <todo-creator class="todo-app__creator" />
 
   </div>
 </template>
 
 <script>
-import low from 'lowdb'
-import LocalStorage from 'lowdb/adapters/LocalStorage'
-import cryptoRandomString from 'crypto-random-string'
-import _find from 'lodash/find'
-import _findIndex from 'lodash/findIndex'
-import _assign from 'lodash/assign'
-import _cloneDeep from 'lodash/cloneDeep'
-import _forEachRight from 'lodash/forEachRight'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import scrollTo from 'scroll-to'
 import TodoCreator from '~/components/TodoCreator'
 import TodoItem from '~/components/TodoItem'
-
 export default {
   name: 'TodoApp',
   components: {
@@ -96,126 +83,43 @@ export default {
     TodoItem
   },
   computed: {
-    filteredTodos () {
-      switch (this.$route.params.id) {
-        case 'all':
-        default:
-          return this.todos
-        case 'active':
-          return this.todos.filter(todo => !todo.done)
-        case 'completed':
-          return this.todos.filter(todo => todo.done)
-      }
-    },
-    activeCount () {
-      return this.todos.filter(todo => !todo.done).length
-    },
-    completedCount () {
-      return this.todos.length - this.activeCount
-    },
+    ...mapState('todoApp', [
+      'db',
+      'todos'
+    ]),
+    ...mapGetters('todoApp', [
+      'filteredTodos',
+      'total',
+      'activeCount',
+      'completedCount'
+    ]),
     allDone: {
       get () {
-        const length = this.todos.length
         // 전체 항목 개수와 완료된 항목 개수가 일치하고 항목 개수가 1개 이상인 경우.
-        return length === this.completedCount && length > 0
+        return this.total === this.completedCount && this.total > 0
       },
       set (checked) {
         this.completeAll(checked)
       }
     }
   },
+  watch: {
+    $route () {
+      this.updateFilter(this.$route.params.id)
+    }
+  },
   created () {
     this.initDB()
   },
   methods: {
-    createTodo (title) {
-      const newTodo = {
-        id: cryptoRandomString({ length: 10 }),
-        title,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        done: false
-      }
-      try {
-        // DB에 저장
-        this.db
-          .get('todos')
-          .push(newTodo)
-          .write() // `todos` 배열을 반환합니다.
-      } catch (error) {
-        console.error(error)
-        return
-      }
-      // 로컬(local)에 반영
-      this.todos.push(newTodo)
-    },
-    updateTodo (todo, value) {
-      try {
-        // DB에 저장
-        this.db
-          .get('todos')
-          .find({ id: todo.id })
-          .assign(value)
-          .write()
-      } catch (error) {
-        console.error(error)
-        return
-      }
-      // Lodash 라이브러리 활용
-      const foundTodo = _find(this.todos, { id: todo.id })
-      _assign(foundTodo, value)
-    },
-    deleteTodo (todo) {
-      try {
-        // DB에 저장
-        this.db
-          .get('todos')
-          .remove({ id: todo.id })
-          .write()
-      } catch (error) {
-        console.log(error)
-        return
-      }
-      // 로컬(local)에 반영
-      // Lodash 라이브러리 활용
-      const foundIndex = _findIndex(this.todos, { id: todo.id })
-      this.$delete(this.todos, foundIndex)
-    },
-    completeAll (checked) {
-      const newTodos = this.db
-        .get('todos')
-        .forEach(todo => {
-          todo.done = checked
-        })
-        .write() // 수정된 `todos` 배열을 반환합니다.
-      this.todos = _cloneDeep(newTodos)
-    },
-    clearCompleted () {
-      // 배열의 앞에서부터 제거할 경우 배열 순서가 밀리며 문제가 발생!
-      // this.todos.forEach(todo => {
-      //   if (todo.done) {
-      //     this.deleteTodo(todo)
-      //   }
-      // })
-      // 배열의 뒤에서부터 제거.
-      // this.todos
-      //   .reduce((list, todo, index) => {
-      //     if (todo.done) {
-      //       list.push(index)
-      //     }
-      //     return list
-      //   }, [])
-      //   .reverse()
-      //   .forEach(index => {
-      //     this.deleteTodo(this.todos[index])
-      //   })
-      // Lodash 라이브러리 활용
-      _forEachRight(this.todos, todo => {
-        if (todo.done) {
-          this.deleteTodo(todo)
-        }
-      })
-    },
+    ...mapMutations('todoApp', [
+      'updateFilter'
+    ]),
+    ...mapActions('todoApp', [
+      'initDB',
+      'completeAll',
+      'clearCompleted'
+    ]),
     scrollToBottom () {
       scrollTo(0, document.body.scrollHeight) // x, y
     },
