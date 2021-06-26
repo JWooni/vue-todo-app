@@ -31,12 +31,15 @@ export default {
         this.title = this.title.trim()
         return
       }
-      this.$emit('create-todo', this.title)
+      this.$store.dispatch('todoApp/createTodo', this.title)
       // `title` 초기화
       this.title = ''
-
+      // 스크롤 최하단으로 이동
       this.$nextTick(() => {
-        window.scrollTo(0, document.body.scrollHeight)
+        window.scrollTo(
+          0, // x
+          document.body.scrollHeight // y
+        )
       })
     }
   }
