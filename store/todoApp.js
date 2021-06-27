@@ -155,10 +155,12 @@ const actions = {
       console.log(error)
     }
   },
-  completeAll ({ state, commit }, checked) {
+  completeAll({ state, commit }, checked) {
+    // DB commit
     const newTodos = state.db
       .get('todos')
       .forEach(todo => {
+        // todo.done = checked
         commit('updateTodo', {
           todo,
           key: 'done',
