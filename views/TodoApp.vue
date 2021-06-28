@@ -83,6 +83,7 @@ export default {
     TodoItem
   },
   computed: {
+    // Helpers
     ...mapState('todoApp', [
       'db',
       'todos'
@@ -105,6 +106,7 @@ export default {
   },
   watch: {
     $route () {
+      // state.filter = this.$route.params.id
       this.updateFilter(this.$route.params.id)
     }
   },
